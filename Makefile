@@ -4,13 +4,21 @@ KVERSION := $(shell uname -r)
 KDIR := /lib/modules/$(KVERSION)/build
 PWD := $(shell pwd)
 
-.PHONY: clean default dkms-add dkms-build dkms-deb dkms-install dkms-rpm dkms-uninstall install
+.PHONY: clean default debug dkms-add dkms-build dkms-deb dkms-install dkms-rpm dkms-uninstall install
 
 clean:
 	$(MAKE) -C $(KDIR) M=$(PWD) clean
 
 default:
 	$(MAKE) -C $(KDIR) M=$(PWD) modules
+
+
+debug: DBG_CFLAGS += -g -DDEBUG
+debug: CCFLAGS += ${DBG_CFLAGS}
+debug: ccflags-y += ${DBG_CFLAGS}
+debug: CC += ${DBG_CFLAGS}
+debug:
+	$(MAKE) -C $(KDIR) M=$(PWD) modules EXTRA_CFLAGS="$(DBG_CFLAGS)"
 
 dkms-add:
 	dkms add --force $(PWD)
